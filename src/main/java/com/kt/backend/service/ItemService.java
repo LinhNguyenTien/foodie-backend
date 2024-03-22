@@ -1,6 +1,8 @@
 package com.kt.backend.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.kt.backend.dto.ItemDiscountDto;
 import com.kt.backend.dto.ItemDto;
@@ -22,4 +24,5 @@ public interface ItemService {
 	
 	List<ItemDto> getItemsCurrentByCart(Integer cartId);
 	
+	Map.Entry<Integer, Integer> getProductTopOrder(HashMap<Integer, Integer> listProducts);
 }

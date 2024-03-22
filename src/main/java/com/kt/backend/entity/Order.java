@@ -45,7 +45,7 @@ public class Order {
 	@JsonBackReference
 	@ManyToOne
     @JoinColumn(name = "order_status_id")
-	private OrderStatus order_status;
+	private OrderStatus orderStatus;
 	
 	@OneToOne
     @JoinColumn(name = "bill_id")

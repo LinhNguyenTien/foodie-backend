@@ -43,7 +43,14 @@ public class BillServiceImpl implements BillService{
 	@Override
 	public RevenueDto getRevenueOfStore() {
 		RevenueDto revenueDto = new RevenueDto();
-		revenueDto.setRevenue(this.billRepository.getRevenue());
+		revenueDto.setRevenue(this.billRepository.getTotalRevenue());
+		return revenueDto;
+	}
+
+	@Override
+	public RevenueDto getRevenueOfStoreInMonth(String month) {
+		RevenueDto revenueDto = new RevenueDto();
+		revenueDto.setRevenue(this.billRepository.getRevenueByMonth(month));
 		return revenueDto;
 	}
 	

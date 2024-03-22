@@ -12,4 +12,7 @@ public interface BillService {
 	void deleteBill(Integer billId);
 	
 	RevenueDto getRevenueOfStore();
+	
+	RevenueDto getRevenueOfStoreInMonth(String month);
+	
 }

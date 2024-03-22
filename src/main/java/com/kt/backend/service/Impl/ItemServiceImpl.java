@@ -1,6 +1,9 @@
 package com.kt.backend.service.Impl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -131,6 +134,18 @@ public class ItemServiceImpl implements ItemService {
 		List<ItemDto> itemDtos = items.stream().map((item) -> this.modelMapper.map(item, ItemDto.class))
 				.collect(Collectors.toList());
 		return itemDtos;
+	}
+	
+	@Override
+	public Entry<Integer, Integer> getProductTopOrder(HashMap<Integer, Integer> listProducts) {
+		Map.Entry<Integer, Integer> maxPrice = null;
+        for (Map.Entry<Integer, Integer> price : listProducts.entrySet()) {
+            if (maxPrice == null || price.getValue().compareTo(maxPrice.getValue()) > 0) {
+                maxPrice = price;
+            }
+        }
+        listProducts.remove(maxPrice.getKey());
+        return maxPrice;
 	}
 	
 }

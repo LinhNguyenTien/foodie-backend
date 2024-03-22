@@ -49,4 +49,10 @@ public class BillController {
 		return new ResponseEntity<RevenueDto>(revenueDto, HttpStatus.OK);
 	}
 
+	@GetMapping("/revenue/{month}")
+	public ResponseEntity<RevenueDto> getTotalRevenue(@PathVariable Integer month) {
+		String monthS = "%/0"+month+"/%";
+		RevenueDto revenueDto = this.billService.getRevenueOfStoreInMonth(monthS);
+		return new ResponseEntity<RevenueDto>(revenueDto, HttpStatus.OK);
+	}
 }

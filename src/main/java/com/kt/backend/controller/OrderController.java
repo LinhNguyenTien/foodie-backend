@@ -1,5 +1,7 @@
 package com.kt.backend.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kt.backend.dto.OrderDto;
+import com.kt.backend.dto.ProductDto;
 import com.kt.backend.dto.ResOrderDto;
 import com.kt.backend.response.ApiResponse;
 import com.kt.backend.service.OrderService;
@@ -56,4 +59,24 @@ public class OrderController {
 		return new ResponseEntity<ResOrderDto>(updatedOr, HttpStatus.OK);
 	}	
 	
+	@GetMapping("/toporder")
+	public ResponseEntity<List<ProductDto>> getTopOrderCurrent() {
+		List<ProductDto> productDtos = this.orderService.getThreeProductBestOrder();
+		return new ResponseEntity<List<ProductDto>>(productDtos, HttpStatus.OK);
+	}
+	
+	@GetMapping("/orderStatus/{orderStatusId}")
+	public ResponseEntity<List<ResOrderDto>> getOrdersByOrderStatusID(@PathVariable Integer orderStatusId) {
+		List<ResOrderDto> orderDtos = this.orderService.getOrdersByOrderStatus(orderStatusId);
+		return new ResponseEntity<List<ResOrderDto>>(orderDtos, HttpStatus.OK);
+	}
+	
+	@GetMapping("/{accountId}/{orderStatusId}")
+	public ResponseEntity<List<ResOrderDto>> fillterOrderByAccountAndAcStatus(
+			@PathVariable Integer accountId,
+			@PathVariable Integer orderStatusId
+			) {
+		List<ResOrderDto> orderDtos = this.orderService.getOrdersByAccountAndAcStatus(accountId, orderStatusId);
+		return new ResponseEntity<List<ResOrderDto>>(orderDtos, HttpStatus.OK);
+	}
 }

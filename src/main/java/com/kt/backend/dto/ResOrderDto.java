@@ -26,7 +26,7 @@ public class ResOrderDto {
 	
 	private Account account;
 	
-	private OrderStatus order_status;
+	private OrderStatus orderStatus;
 
 	private Bill bill;
 

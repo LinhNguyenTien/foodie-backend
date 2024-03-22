@@ -1,6 +1,9 @@
 package com.kt.backend.service.Impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.kt.backend.dto.BillDto;
 import com.kt.backend.dto.OrderDto;
+import com.kt.backend.dto.ProductDto;
 import com.kt.backend.dto.ResOrderDto;
 import com.kt.backend.entity.Account;
 import com.kt.backend.entity.Bill;
@@ -21,15 +25,21 @@ import com.kt.backend.repository.CheckOutRepository;
 import com.kt.backend.repository.ItemRepository;
 import com.kt.backend.repository.OrderRepository;
 import com.kt.backend.repository.OrderStatusRepository;
+import com.kt.backend.repository.ProductRepository;
 import com.kt.backend.service.BillService;
 import com.kt.backend.service.CartService;
+import com.kt.backend.service.ItemService;
 import com.kt.backend.service.OrderService;
+import com.kt.backend.service.ProductService;
 
 @Service
 public class OrderServiceImpl implements OrderService{
 
 	@Autowired
 	private OrderRepository orderRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
 	
 	@Autowired
 	private AccountRepository accountRepository;
@@ -42,6 +52,12 @@ public class OrderServiceImpl implements OrderService{
 	
 	@Autowired
 	private BillService billService;
+	
+	@Autowired
+	private ItemService itemService;
+	
+	@Autowired
+	private ProductService prodService;
 	
 	@Autowired
 	private CartService cartService;
@@ -67,8 +83,8 @@ public class OrderServiceImpl implements OrderService{
 		BillDto responseBill = this.billService.createBill(billDto);		
 		Bill bill = this.modelMapper.map(responseBill, Bill.class);
 		order.setBill(bill);	
-		OrderStatus orStatus = this.orderStatusRepository.findOrderStatusByStatus("Processing");
-		order.setOrder_status(orStatus);
+		OrderStatus orStatus = this.orderStatusRepository.findOrderStatusByStatusID(1);
+		order.setOrderStatus(orStatus);
 		Order addOrder = this.orderRepository.save(order);
 		 // Update orderId for items in the list
 	    List<Item> items = order.getItems();
@@ -98,9 +114,54 @@ public class OrderServiceImpl implements OrderService{
 	public ResOrderDto changeStatusOfOrder(Integer orderId, Integer orderStatusId) {
 		Order order = this.orderRepository.findById(orderId).orElseThrow(()-> new ResourceNotFoundException("Order","OrderId", orderId));
 		OrderStatus orderStatus = this.orderStatusRepository.findById(orderStatusId).orElseThrow(()-> new ResourceNotFoundException("OrderStatus","OrderStatusId", orderStatusId));
-		order.setOrder_status(orderStatus);
+		order.setOrderStatus(orderStatus);
 		Order updateOrder = this.orderRepository.save(order);		
 		return this.modelMapper.map(updateOrder, ResOrderDto.class);
+	}
+
+
+	@Override
+	public List<ProductDto> getThreeProductBestOrder() {
+		HashMap<Integer, Integer> listProducts = new HashMap<>();
+		for(Integer e: this.productRepository.getAllIdOfProduct()) {
+			listProducts.put(e, 0);
+		}
+		ArrayList<Integer> listProductsOrder = new ArrayList<>();
+		for(Integer e: this.itemRepository.getAllIdOfProductOrder()) {
+			listProductsOrder.add(e);
+		}
+		for(Integer e: listProductsOrder) {
+			listProducts.put(e, listProducts.get(e) + 1);
+		}
+		List<ProductDto> bestSeller = new ArrayList<>();
+		bestSeller.add(this.prodService.getProductById(this.itemService.getProductTopOrder(listProducts).getKey()));
+		bestSeller.add(this.prodService.getProductById(this.itemService.getProductTopOrder(listProducts).getKey()));
+		bestSeller.add(this.prodService.getProductById(this.itemService.getProductTopOrder(listProducts).getKey()));
+		return bestSeller;
+	}
+
+	@Override
+	public List<ResOrderDto> getOrdersByOrderStatus(Integer orderStatusId) {
+		OrderStatus order_status = this.orderStatusRepository.findById(orderStatusId).orElseThrow(()-> new ResourceNotFoundException("OrderStatus","OrderStatusId", orderStatusId));
+		List<Order> orders = this.orderRepository.findByOrderStatus(order_status);
+		List<ResOrderDto> orderDtos = orders.stream().map((order) -> this.modelMapper.map(order, ResOrderDto.class))
+				.collect(Collectors.toList());	
+		return orderDtos;
+	}
+
+	@Override
+	public List<ResOrderDto> getOrdersByAccountAndAcStatus(Integer accountId, Integer orderStatusId) {
+		Account account = this.accountRepository.findById(accountId).orElseThrow(()-> new ResourceNotFoundException("Account","AccountId", accountId));
+		List<Order> orders = this.orderRepository.findByAccount(account);
+		List<Order> ordersResult = new ArrayList<>();
+		for(Order order: orders) {
+			if(order.getOrderStatus().getId() == orderStatusId) {
+				ordersResult.add(order);
+			}
+		}
+		List<ResOrderDto> orderDtos = ordersResult.stream().map((order) -> this.modelMapper.map(order, ResOrderDto.class))
+				.collect(Collectors.toList());	
+		return orderDtos;
 	} 
 	
 

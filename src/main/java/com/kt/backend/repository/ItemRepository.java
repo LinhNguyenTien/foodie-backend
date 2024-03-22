@@ -15,4 +15,8 @@ public interface ItemRepository extends JpaRepository<Item, Integer>{
 	
 	@Query(value = "select * from item where item.cart_id = :cartId and item.order_id IS NULL", nativeQuery = true)
 	List<Item> findItemsCurrentByCart(@Param("cartId") Integer cartId);
+	
+	@Query(value = "select product_id from item where order_id is not null", nativeQuery = true)
+	List<Integer> getAllIdOfProductOrder();
+	
 }
